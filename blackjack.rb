@@ -59,13 +59,18 @@ end
 
 # player round
 def player_round(hand, deck, name)
-  puts "Your cards are #{hand_to_s(hand)}. Your total value is #{check_value(hand)}"
   case
-  when check_value(hand) == 21 || check_value(hand) == 11 # One of the cards is an Ace
+  when hand.length == 2 && check_value(hand) == 11 # One of the cards is an Ace
+    puts "Your cards are #{hand_to_s(hand)}."
+    puts "You got Blackjack!"
+  when check_value(hand) == 21 
+    puts "Your cards are #{hand_to_s(hand)}. Your total value is #{check_value(hand)}"
     puts "You got Blackjack!"
   when check_value(hand) > 21
+    puts "Your cards are #{hand_to_s(hand)}. Your total value is #{check_value(hand)}"
     puts "Sorry #{name}, you're busted!"
   when check_value(hand) < 21
+    puts "Your cards are #{hand_to_s(hand)}. Your total value is #{check_value(hand)}"
     print "Would you like a hit or stay #{name}? (H/S)"
     player_choice = gets.chomp.downcase
 
@@ -79,16 +84,21 @@ end
 
 # dealer round
 def dealer_round(hand, deck)
-  puts "The dealer's cards are #{hand_to_s(hand)}. Their total value is #{check_value(hand)}"
   case 
-  when check_value(hand) == 21 || check_value(hand) == 11 # One of the cards is an Ace
+  when hand.length == 2 && check_value(hand) == 11 # One of the cards is an Ace
+    puts "The dealer's cards are #{hand_to_s(hand)}."
+  when check_value(hand) == 21 
+    puts "The dealer's cards are #{hand_to_s(hand)}."
     puts "Dealer has Blackjack!"
   when check_value(hand) > 21
+    puts "The dealer's cards are #{hand_to_s(hand)}. Their total value is #{check_value(hand)}"
     puts "Dealer has busted. You won!"
   when check_value(hand) >= 17 && check_value(hand) < 21
+    puts "The dealer's cards are #{hand_to_s(hand)}. Their total value is #{check_value(hand)}"
     sleep 1
     puts "=> Dealer stays"
   when check_value(hand) < 17
+    puts "The dealer's cards are #{hand_to_s(hand)}. Their total value is #{check_value(hand)}"
     puts "=> Dealer takes a hit"
     sleep 1
     hand << deal_card(deck)
