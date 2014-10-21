@@ -37,7 +37,7 @@ def shuffle_deck(deck)
   puts ".....Shuffling cards....."
   5.times do
     print "..."
-    sleep 2 # 10 total seconds to shuffle cards
+    sleep 1 # 5 total seconds to shuffle cards
   end
   deck.shuffle! #mutates the caller
 end
@@ -60,7 +60,7 @@ end
 def player_round(hand, deck, name)
   puts "Your cards are #{hand_to_s(hand)}. Your total value is #{check_value(hand)}"
   case
-  when check_value(hand) == 21
+  when check_value(hand) == 21 || check_value(hand) == 11 # One of the cards is an Ace
     puts "You got Blackjack!"
   when check_value(hand) > 21
     puts "Sorry #{name}, you're busted!"
@@ -80,14 +80,16 @@ end
 def dealer_round(hand, deck)
   puts "The dealer's cards are #{hand_to_s(hand)}. Their total value is #{check_value(hand)}"
   case 
-  when check_value(hand) == 21
+  when check_value(hand) == 21 || check_value(hand) == 11 # One of the cards is an Ace
     puts "Dealer has Blackjack!"
   when check_value(hand) > 21
-    puts "Dealer has busted. You won."
+    puts "Dealer has busted. You won!"
   when check_value(hand) >= 17 && check_value(hand) < 21
-    puts "Dealer stays"
+    sleep 1
+    puts "=> Dealer stays"
   when check_value(hand) < 17
-    puts "Dealer takes a hit"
+    puts "=> Dealer takes a hit"
+    sleep 1
     hand << deal_card(deck)
     dealer_round(hand, deck)
   end
@@ -153,7 +155,7 @@ def play_blackjack
     system 'clear' # clear screen out before playing again
   end until play_again == 'n'
 
-  puts "Thanks for playing #{name}."
+  puts "Thanks for playing #{name}!"
 end
 
 play_blackjack
