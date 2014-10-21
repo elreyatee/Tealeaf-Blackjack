@@ -7,7 +7,8 @@ require 'pry'
 # create a deck of cards
 def deck_of_cards
   deck  = [] #empty deck, needs to be 52 cards total
-  suits = %w{spades clubs hearts diamonds}
+  #suits = %w{Spades Clubs Hearts Diamonds}
+  suits = ["\u2660", "\u2663", "\u2665", "\u2666"]
   ranks = %w{Ace 2 3 4 5 6 7 8 9 10 Jack Queen King}
 
   suits.each do |suit|
@@ -24,7 +25,7 @@ def hand_to_s(hand)
   string = []
   if hand.length > 1
     hand.each do |card|
-      string << "#{card['rank']} of #{card['suit']}"
+      string << "#{card['rank']} of #{card['suit'].encode('utf-8')}"
     end
     string.join(' and ')
   else
@@ -138,7 +139,7 @@ def play_blackjack
     end
 
     # show dealer's face up card, which is the last card dealt
-    puts "Dealer's face up card is a #{dealer_hand.last['rank']} of #{dealer_hand.last['suit']}"
+    puts "Dealer's face up card is a #{dealer_hand.last['rank']} of #{dealer_hand.last['suit'].encode('utf-8')}"
 
     player_value = player_round(player_hand, deck, name)
 
