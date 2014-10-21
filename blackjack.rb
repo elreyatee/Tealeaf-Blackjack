@@ -7,8 +7,8 @@ require 'pry'
 # create a deck of cards
 def deck_of_cards
   deck  = [] #empty deck, needs to be 52 cards total
-  suits = %w{'spade', 'club', 'heart', 'diamond'}
-  ranks = %w{'Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King'}
+  suits = %w{spades clubs hearts diamonds}
+  ranks = %w{Ace 2 3 4 5 6 7 8 9 10 Jack Queen King}
 
   suits.each do |suit|
     ranks.each_with_index do |rank, index|
@@ -19,108 +19,144 @@ def deck_of_cards
   deck
 end
 
-def hand_to_s(d)
+# print to screen format for a hand
+def hand_to_s(hand)
   string = []
-  d.each do |card|
-    string << "#{card['rank']} of #{card['suit']}"
+  if hand.length > 1
+    hand.each do |card|
+      string << "#{card['rank']} of #{card['suit']}"
+    end
+    string.join(' and ')
+  else
+    string
   end
-  string.join
 end
 
 # shuffle the deck of cards
-def shuffle_deck(d)
-  d.shuffle!
+def shuffle_deck(deck)
+  puts ".....Shuffling cards....."
+  5.times do
+    print "..."
+    sleep 2 # 10 total seconds to shuffle cards
+  end
+  deck.shuffle! #mutates the caller
 end
 
-def check_value(d)
+# check value of cards in a hand
+def check_value(hand)
   sum = 0
-  d.each do |card|
+  hand.each do |card|
     sum += card.values.last
   end
   sum
 end
 
-def deal_card(d)
-  d.pop
+# deal a card from deck (mutates the caller)
+def deal_card(deck)
+  deck.pop
 end
 
-def player_round(h, d)
-  puts "Your cards are #{hand_to_s(h)}. Your total value is #{check_value(h)}"
+# player round
+def player_round(hand, deck, name)
+  puts "Your cards are #{hand_to_s(hand)}. Your total value is #{check_value(hand)}"
   case
-  when check_value(h) == 21
-    puts "Blackjack!"
-  when check_value(h) > 21
-    puts "You're busted. You lost."
-  when check_value(h) < 21
-    print "Would you like a hit or stay? (H/S)"
+  when check_value(hand) == 21
+    puts "You got Blackjack!"
+  when check_value(hand) > 21
+    puts "Sorry #{name}, you're busted!"
+  when check_value(hand) < 21
+    print "Would you like a hit or stay #{name}? (H/S)"
     player_choice = gets.chomp.downcase
 
     if player_choice == 'h'
-      h << deal_card(d)
-      player_round(h, d)
+      hand << deal_card(deck)
+      player_round(hand, deck, name)
     end
   end
-  final_value = check_value(h)
+  final_value = check_value(hand)
 end
 
-def dealer_round(h, d)
-  puts "The dealer's cards are #{hand_to_s(h)}. Their total value is #{check_value(h)}"
+# dealer round
+def dealer_round(hand, deck)
+  puts "The dealer's cards are #{hand_to_s(hand)}. Their total value is #{check_value(hand)}"
   case 
-  when check_value(h) == 21
+  when check_value(hand) == 21
     puts "Dealer has Blackjack!"
-  when check_value(h) > 21
+  when check_value(hand) > 21
     puts "Dealer has busted. You won."
-  when check_value(h) <= 13
-    puts "Dealer takes a hit"
-    h << deal_card(d)
-    dealer_round(h, d)
-  when check_value(h) > 13 && check_value(h) < 21
+  when check_value(hand) >= 17 && check_value(hand) < 21
     puts "Dealer stays"
+  when check_value(hand) < 17
+    puts "Dealer takes a hit"
+    hand << deal_card(deck)
+    dealer_round(hand, deck)
   end
-  final_value = check_value(h)
+  final_value = check_value(hand)
 end
 
-def winner(p, d)
-  if p > d && p < 21 && d < 21
+# determine winner cases
+def winner(player, dealer)
+  case
+  when (player == 21 && dealer < 21) || (player > dealer && player < 21 && dealer < 21) 
     puts "You win!"
-  elsif p < d && d < 21 && p < 21
+  when (dealer == 21 && player < 21) || (player < dealer && dealer < 21 && player < 21)
     puts "You lose!"
-  elsif p == d
+  when player == dealer
     puts "Push"
   end
 end
 
-def blackjack
-  deck = deck_of_cards 
+# play blackjack
+def play_blackjack
+
+  # welcome player
+  puts "Welcome to Blackjack!"
+  print "Howdy stranger, what's your name? "
+
+  # get player's name
+  name = gets.chomp
+
+  puts "Nice to meet you #{name}. Let's play some Blackjack!"
 
   begin 
-    puts "Welcome to Blackjack"
-    shuffle_deck(deck)
+    deck = []
 
-    # deal player two cards, and deal computer two cards
+    # three decks of cards protects against card counting
+    3.times {deck += deck_of_cards} 
+    shuffle_deck(deck)
+    
+    # players have yet to be dealt cards
     player_hand = []
     dealer_hand = []
 
-    player_hand << deal_card(deck)
-    dealer_hand << deal_card(deck)
-    player_hand << deal_card(deck)
-    dealer_hand << deal_card(deck)
+    # deal cards in an alternate manner
+    2.times do
+      player_hand << deal_card(deck)
+      dealer_hand << deal_card(deck)
+    end
 
-    player_value = player_round(player_hand, deck)
+    # show dealer's face up card, which is the last card dealt
+    puts "Dealer's face up card is a #{dealer_hand.last['rank']} of #{dealer_hand.last['suit']}"
 
-    if player_value <= 21
+    player_value = player_round(player_hand, deck, name)
+
+    # dealer only plays out hand when player does not bust. If players busts, they automatically lose
+    if player_value <= 21 
       dealer_value = dealer_round(dealer_hand, deck)
       winner(player_value, dealer_value)
     end
 
-    puts "Would you like to play again? (Y/N)"
+    # ask player to play again
+    print "Would you like to play again? (Y/N) "
     play_again = gets.chomp.downcase
+
+    system 'clear' # clear screen out before playing again
   end until play_again == 'n'
 
-  puts "Thanks for playing"
+  puts "Thanks for playing #{name}."
 end
 
-blackjack
+play_blackjack
 
 
 
